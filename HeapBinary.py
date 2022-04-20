@@ -56,7 +56,7 @@ class Heap:
                 obj = obj.right_person
         return obj
 
-    def get_rout_parent(self, m: int) -> list(int):
+    def get_rout_parent(self, m: int)-> list[int]:
         '''
             Функция возвращает путь от корня до родителя m
         :param m:
@@ -109,6 +109,9 @@ class Heap:
         self.n += 1
         my_parent = self.get_obg_parent(self.n)
         self.find_my_position(parent=my_parent, val=val)
+    def __str__(self):
+        self.pprint(self.root)
+        return ""
 
     def pprint(self, element: HeapElement) -> None:
         '''
@@ -169,11 +172,16 @@ if __name__ == '__main__':
     a = Heap()
     for x in numbers:
         a.append(x)
-    a.pprint(a.root)
+    print(f"Куча для списка {numbers}")
     print("=" * 100)
+    print(a)
+    print("=" * 100)
+    print("Вывод максимального элемента ")
     for x in range(a.n):
         print(f"x= {a.get_Max()}")
-    a.append(x)
-    print("!" * 20)
-    for x in range(a.n):
-        print(f"x= {a.get_Max()}")
+    new = 10
+    a.append(new)
+    print("=" * 100)
+    print(f"Добавим {new}")
+    print(a)
+
