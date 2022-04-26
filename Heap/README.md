@@ -16,3 +16,10 @@
     Insert - O(Log(n))
     DecreaseKey - O(Log(n))
     Merge - O(Log(n))
+
+
+
+###Результат:
+    1. MyHeapBinary - знал, только идею. Первый опыт    
+    2. ClassicHeapBinary - Классический вариант
+    3. MyHeapBinomial -  знал, только идею. Первый опыт  

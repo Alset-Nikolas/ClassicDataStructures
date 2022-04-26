@@ -44,6 +44,8 @@ class BinomialTree:
         self.tree_list = []
         self.k = k
 
+
+
     def combinations(self, k, i):
         return math.factorial(i) // (math.factorial(k - i) * math.factorial(i))
 
@@ -183,6 +185,7 @@ class BinomialHeap:
         self.binomial_trees = []
         self.heap_size = 0
 
+
     def create(self, mass):
         self.numbers = mass
         self.heap_size = len(self.numbers)
@@ -231,6 +234,11 @@ class BinomialHeap:
         return min_val, min_res
 
     def merge(self, other):
+        '''
+        Функция слияния двух куч
+        :param other:
+        :return: [binominal_trees]
+        '''
         first_index = 0
         second_index = 0
         carry = -1
@@ -238,6 +246,7 @@ class BinomialHeap:
         while first_index < len(self.binomial_trees) and second_index < len(other.binomial_trees):
             tree_1 = self.binomial_trees[first_index]
             tree_2 = other.binomial_trees[second_index]
+
             if carry == -1:
                 if tree_1.k < tree_2.k:
                     ans.append(tree_1)
@@ -297,6 +306,13 @@ class BinomialHeap:
         self.binomial_trees = self.merge(other)
         return self
 
+    def add(self, new_el):
+        new_heap = BinomialHeap()
+        new_heap.create([new_el])
+        self.heap_size += new_heap.heap_size
+        self.binomial_trees = self.merge(new_heap)
+
+
 
 def check_sort():
     import random
@@ -316,6 +332,9 @@ def check_sort():
             ans.append(a)
         numbers.sort(key=lambda x: x[1])
         if [x[1] for x in ans] != [x[1] for x in numbers]:
+            print("Нашел!")
+            print(f"Должно быть {[x[1] for x in numbers]}")
+            print(f"Получил: {[x[1] for x in ans]}")
             break
         start += 1
 
@@ -332,4 +351,10 @@ def check_merge():
 
 
 if __name__ == '__main__':
-    check_merge()
+    heap = BinomialHeap()
+    heap.create([(1, 1), (2, 2)])
+    heap.add((1,0))
+    heap.add((3, -1))
+    for x in range(heap.heap_size):
+        a = heap.pop_min()
+        print(a)

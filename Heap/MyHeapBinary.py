@@ -8,10 +8,10 @@
 
 class HeapElement:
     '''
-    Элемент кучи, состоит из
-    val - значения
-    parent - ссылка на родителя
-    left_person, right_person - ссылки на детей
+    Элемент кучи, состоит из:
+        val - значения
+        parent - ссылка на родителя
+        left_person, right_person - ссылки на детей
     '''
 
     def __init__(self, val, parent):
@@ -26,8 +26,9 @@ class HeapElement:
 
 class Heap:
     '''
-    root - корень
-    n - кол-во эл-ов
+    Куча состоит из:
+        root - корень
+        n - кол-во эл-ов
     '''
 
     def __init__(self):
