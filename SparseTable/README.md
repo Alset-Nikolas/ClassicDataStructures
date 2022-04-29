@@ -14,4 +14,4 @@
                   => минимум(1/2 из половинок, 2/2 из половинок) - ответ
 
 ###Результат:
-    1. ClassicSparseTable
+    1. ClassicSparseTable.py
