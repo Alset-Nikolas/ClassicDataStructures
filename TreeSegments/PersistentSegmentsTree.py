@@ -2,6 +2,7 @@ import math
 
 
 def pprint(node):
+    '''Вывод дерева по уровню '''
     parent = [node]
     ans = []
     while len(parent) > 0:
@@ -20,6 +21,7 @@ def pprint(node):
 
 
 class Node:
+    '''Узел дерева'''
     def __init__(self, value, child_left=None, child_right=None):
         self.value = value
         self.child_left = child_left
@@ -38,6 +40,7 @@ class PersistentTree:
         self.i = 0
 
     def add_root(self):
+        '''Учет нового корня '''
         start_root = Node(0)
         self.roots.append(start_root)
         return start_root
@@ -51,18 +54,34 @@ class PersistentTree:
             self.mass += [0] * (new_len_mass - self.mass_n)
             self.mass_n = new_len_mass
 
-    def create(self, mass):
+    def create(self, mass: list) ->None:
+        '''
+            Создание дерева
+        :param mass: ДО по элементам массива
+        :return: None
+        '''
         self.mass_update(mass)
         start_root = self.add_root()
         self.build(left=0, right=self.mass_n, x=start_root)
 
-    def new_node(self, value=0):
+    def new_node(self, value: int=0) -> Node:
+        '''
+        Новый узел в дереве отрезков
+        :param value: Значение узла
+        :return: None
+        '''
         node = Node(value)
         self.nodes.append(node)
         return node
 
-    def build(self, left, right, x):
-        '''Построение ДО'''
+    def build(self, left:int, right:int, x:Node) -> int:
+        '''
+        Построение ДО
+        :param left: Значение левого края узла х
+        :param right: Значение правого края узла х
+        :param x: Узел x
+        :return: None
+        '''
         if right - left == 1:
             x.value = self.mass[left]
             return x.value
@@ -74,7 +93,16 @@ class PersistentTree:
         x.value = ls + rs
         return ls + rs
 
-    def set(self, i, val, lx, rx, node_x):
+    def set(self, i:int, val:int, lx:int, rx:int, node_x:Node) ->Node:
+        '''
+
+        :param i: index элемента по замене
+        :param val: новое значение
+        :param lx: lx-левый край за который отвечает х
+        :param rx: rx-левый край за который отвечает х
+        :param node_x: узел x
+        :return:
+        '''
         if lx == i and rx == i + 1:
             return self.new_node(val)
 
@@ -94,7 +122,13 @@ class PersistentTree:
             new_branch.value = new_branch.child_left.value + new_branch.child_right.value
         return new_branch
 
-    def change(self, i, val):
+    def change(self, i:int, val:int) -> None:
+        '''
+        mass[i] = val <- обновление массива
+        :param i: i-й эл-т поменять
+        :param val: новое значение
+        :return:
+        '''
         root = self.roots[-1]
         new_root = self.set(i, val, lx=0, rx=self.mass_n, node_x=root)
         self.roots.append(new_root)
