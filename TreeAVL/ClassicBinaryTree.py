@@ -17,7 +17,7 @@ class Node:
         return f"{self.val}"
 
 
-class ClassicTreeAVL:
+class ClassicBinaryTree:
     '''Классическое дерево поиска'''
 
     def __init__(self):
@@ -37,6 +37,7 @@ class ClassicTreeAVL:
         Находим место для изменения значения или поика элемета
         :param find_val: Значение поиска
         :param node: текущий узел
+        :param flag_del: Флаг (bool) для удаление узла
         :return: Node - Узел дерева, flag - левая/правая
         '''
         now_node = node or self.root
@@ -44,9 +45,7 @@ class ClassicTreeAVL:
         ans = None, None
         if find_val == val_node:
             # усли есть такое значение, то вернет его
-            print(flag_del)
             if flag_del:
-                print("!")
                 self.go_extract(find_val, now_node)
                 return None, None
             return now_node, None
@@ -124,36 +123,38 @@ class ClassicTreeAVL:
         # TODO Балансировка!
         self.upgrate_h(now_node)
 
-    def del_root(self, node_root):
-        print(f"уДАЛАЯЕМ  {node_root.val}")
-        if node_root.l is None:
-            node_root.r = None
-            return
-        left_person = node_root.l
+    def compare_to_parent(self, node):
+        '''Сравнение клбчей родителя и узла'''
+        parent = node.parent
+        if parent is None:
+            return None
+        return parent.val - node.val
 
-        while left_person.r != None:
-            left_person = left_person.r
-        parent_left_person = left_person.parent
-        self.root.val = left_person.val
-        parent_left_person.r = None
-
+    def del_node(self, node):
+        '''Удаление ссылок, у узла node'''
+        node.parent = None
+        node.l = None
+        node.r = None
 
     def go_extract(self, val, node_del: Node) -> None:
         '''
         Удаление элемента
         :param val: значение, которое хотим удалить
-        :return:
+        :return: None
         '''
-        print(node_del.val, "!!!!")
+        self.n -= 1
         parent = node_del.parent
-
+        delta = self.compare_to_parent(node_del)
+        # Случай 1: У удаляемого узла нет левого ребенка.
         if node_del.l is None:
             if parent is None:
-                #удаление корня
+                # удаление корня
                 self.root = node_del.r
-                self.root.parent = None
+                if self.root is not None:
+                    self.root.parent = None
             else:
-                if parent.val > val:
+
+                if delta > 0:
                     parent.l = node_del.r
                     if parent.l is not None:
                         node_del.r.parent = parent
@@ -163,31 +164,56 @@ class ClassicTreeAVL:
                         node_del.r.parent = parent
         else:
             left_person = node_del.l
-            while left_person.r != None:
-                left_person = left_person.r
-            node_del.val = left_person.val  #копируем значение у самого большого в левом дереве
-            parent_left_person = left_person.parent
-            #TODO ЕРУНДА КАКАЯ-ТО
-            parent_left_person.r = left_person.l
-            if left_person.l is not None:
-                left_person.l.parent = parent_left_person
-            left_person.l = None
-            left_person.parent = None
-            if left_person.l is None and left_person.r is None:
-                if parent_left_person.val == parent_left_person.l.val:
-                    parent_left_person.l = None
-                    print("!!!!")
+            if left_person.r is None:
+                # Случай 2: У удаляемого узла есть  левый ребенок, у которого, в свою очередь нет правого ребенка.
+                parent_node_del = node_del.parent
+                if delta is None:
+                    # удаление корня
+                    self.root = left_person
+                    self.root.parent = None
+                    r_child = node_del.r
+                    self.root.r = r_child
+                    if r_child is not None:
+                        r_child.parent = self.root
+                    l_child = self.root.l
+                    if l_child is not None:
+                        l_child.parent = self.root
+
+                else:
+                    if delta > 0:
+                        # Левый сын
+                        parent_node_del.l = left_person
+                    elif delta < 0:
+                        parent_node_del.r = left_person
+                    left_person.parent = parent_node_del
+                self.del_node(node_del)
+            else:
+                # Случай 3: У удаляемого узла есть левый ребенок, у которого есть правый ребенок.
+                right_person = left_person
+                while right_person.r != None:
+                    right_person = left_person.r
+                node_del.val = right_person.val  # копируем значение у самого правого ребенка (большое) в левом дереве
+                parent_right_person = right_person.parent
+                parent_right_person.r = right_person.l
+                right_person.l = None
+                parent_right_person.r = None
+
     def extract(self, val):
-        print("extract")
+        '''
+        Удаление узла по значению val
+        '''
         self.find_place(val, flag_del=True)
 
     def __str__(self):
+        if self.n == 0:
+            return str(None)
         parent = [self.root]
         ans = [[self.root]]
         while parent != []:
             childs = []
             for p in parent:
-                childs += [p.l, p.r]
+                if p is not None:
+                    childs += [p.l, p.r]
             ans.append(childs)
             parent = []
             for c in childs:
@@ -199,7 +225,7 @@ class ClassicTreeAVL:
                 if i % 2 == 0 and i != 0:
                     print("\t", end='')
                 if x:
-                    print(f"{x} (parent={x.parent})(h={x.h}) childs=({x.l}, {x.r})", end=" ")
+                    print(f"{x} (id={id(x)}) (parent={x.parent})(h={x.h}) childs=({x.l}, {x.r})", end=" ")
                 else:
                     print(f"{x} (0)", end=" ")
             print()
@@ -207,19 +233,11 @@ class ClassicTreeAVL:
 
 
 if __name__ == '__main__':
-    tree = ClassicTreeAVL()
-    tree.insert(10)
-    tree.insert(5)
-    tree.insert(0)
-    tree.insert(7)
-    tree.insert(15)
+    tree = ClassicBinaryTree()
+    for x in range(5):
+        tree.insert(x)
+    for x in range(-1, -6, -1):
+        tree.insert(x)
+    tree.extract(0)
     print(tree)
-    tree.extract(10)
-    print()
-    print(tree)
-    tree.extract(5)
-    print()
-    print(tree)
-    tree.extract(7)
-    print()
-    print(tree)
+
