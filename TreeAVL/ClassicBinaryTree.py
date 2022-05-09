@@ -1,3 +1,6 @@
+import datetime
+
+
 class Node:
     def __init__(self, val, parent=None, l=None, r=None, h=0, diff=0):
         '''Узел дерева
@@ -29,8 +32,7 @@ class ClassicBinaryTree:
         if self.n == 0:
             self.root = Node(val=val)
             self.n += 1
-            return True
-        return False
+
 
     def find_place(self, find_val: int, node: Node = None, flag_del=False):
         '''
@@ -46,7 +48,8 @@ class ClassicBinaryTree:
         if find_val == val_node:
             # усли есть такое значение, то вернет его
             if flag_del:
-                self.go_extract(find_val, now_node)
+                self.go_extract(now_node)
+                self.balance(now_node)
                 return None, None
             return now_node, None
         elif find_val < val_node:
@@ -97,8 +100,8 @@ class ClassicBinaryTree:
         :param node: текущий узел
         :return: bool
         '''
-        if self.create_root(new_val):
-            return
+
+        self.create_root(new_val)
         now_node = node or self.root
         val_node = now_node.val
         if new_val == val_node:
@@ -108,7 +111,9 @@ class ClassicBinaryTree:
             if now_node.l is None:
                 # Если нет левого ребенка, то нашли его место
                 new_node = self.new_element(now_node, new_val)
+                new_node.h = 1
                 now_node.l = new_node
+
             else:
                 # Если есть, то идем глубже в левого ребенка                          
                 self.insert(new_val, now_node.l)
@@ -116,19 +121,26 @@ class ClassicBinaryTree:
             if now_node.r is None:
                 # Если нет правого ребенка, то нашли его место
                 new_node = self.new_element(now_node, new_val)
+                new_node.h = 1
                 now_node.r = new_node
             else:
                 # Если есть, то идем глубже в правого ребенка
                 self.insert(new_val, now_node.r)
-        # TODO Балансировка!
+        self.balance(now_node)
+
+
+    def balance(self, now_node):
+
         self.upgrate_h(now_node)
+        pass
 
     def compare_to_parent(self, node):
         '''Сравнение клбчей родителя и узла'''
         parent = node.parent
         if parent is None:
             return None
-        return parent.val - node.val
+        print(parent.val , node.val)
+        return bool(parent.val < node.val)
 
     def del_node(self, node):
         '''Удаление ссылок, у узла node'''
@@ -136,7 +148,7 @@ class ClassicBinaryTree:
         node.l = None
         node.r = None
 
-    def go_extract(self, val, node_del: Node) -> None:
+    def go_extract(self, node_del: Node) -> None:
         '''
         Удаление элемента
         :param val: значение, которое хотим удалить
@@ -205,6 +217,9 @@ class ClassicBinaryTree:
         self.find_place(val, flag_del=True)
 
     def __str__(self):
+        now_time = datetime.datetime.now()
+        end_time = now_time + datetime.timedelta(seconds=5)
+
         if self.n == 0:
             return str(None)
         parent = [self.root]
@@ -217,15 +232,17 @@ class ClassicBinaryTree:
             ans.append(childs)
             parent = []
             for c in childs:
-                if c is not None:
+                if c is not None and c not in parent:
                     parent += [c]
+            # print([f'x={x} p={p} l={x.l} r={x.r}' for x in parent])
+
 
         for line in ans:
             for i, x in enumerate(line):
                 if i % 2 == 0 and i != 0:
                     print("\t", end='')
                 if x:
-                    print(f"{x} (id={id(x)}) (parent={x.parent})(h={x.h}) childs=({x.l}, {x.r})", end=" ")
+                    print(f"{x} (diff={x.diff}) (parent={x.parent})(h={x.h}) childs=({x.l}, {x.r})", end=" ")
                 else:
                     print(f"{x} (0)", end=" ")
             print()
