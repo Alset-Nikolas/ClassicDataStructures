@@ -34,7 +34,7 @@ class ClassicBinaryTree:
             self.n += 1
 
 
-    def find_place(self, find_val: int, node: Node = None, flag_del=False):
+    def find_place(self, find_val: int, node: Node = None):
         '''
         Находим место для изменения значения или поика элемета
         :param find_val: Значение поиска
@@ -44,23 +44,18 @@ class ClassicBinaryTree:
         '''
         now_node = node or self.root
         val_node = now_node.val
-        ans = None, None
         if find_val == val_node:
             # усли есть такое значение, то вернет его
-            if flag_del:
-                self.go_extract(now_node)
-                self.balance(now_node)
-                return None, None
-            return now_node, None
+            return now_node
         elif find_val < val_node:
             if now_node.l is None:
-                return now_node, "left"
-            ans = self.find_place(find_val, now_node.l, flag_del=flag_del)
+                return now_node
+            ans = self.find_place(find_val, now_node.l)
         else:
             if now_node.r is None:
                 # если нет , то вернет его
-                return now_node, "right"
-            ans = self.find_place(find_val, now_node.r, flag_del=flag_del)
+                return now_node
+            ans = self.find_place(find_val, now_node.r)
         self.upgrate_h(now_node)
         return ans
 
@@ -70,8 +65,8 @@ class ClassicBinaryTree:
         :param find_val:
         :return: bool
         '''
-        place_node, flag = self.find_place(find_val)
-        if flag:
+        place_node = self.find_place(find_val)
+        if place_node and place_node.val == find_val:
             return True
         return False
 
@@ -130,7 +125,7 @@ class ClassicBinaryTree:
 
 
     def balance(self, now_node):
-
+        # print('balance now_node', now_node)
         self.upgrate_h(now_node)
         pass
 
@@ -139,7 +134,7 @@ class ClassicBinaryTree:
         parent = node.parent
         if parent is None:
             return None
-        print(parent.val , node.val)
+        # print(parent.val , node.val)
         return bool(parent.val < node.val)
 
     def del_node(self, node):
@@ -147,6 +142,7 @@ class ClassicBinaryTree:
         node.parent = None
         node.l = None
         node.r = None
+        node.val =None
 
     def go_extract(self, node_del: Node) -> None:
         '''
@@ -155,10 +151,13 @@ class ClassicBinaryTree:
         :return: None
         '''
         self.n -= 1
+        # print('node_del', node_del)
         parent = node_del.parent
         delta = self.compare_to_parent(node_del)
-        # Случай 1: У удаляемого узла нет левого ребенка.
+
         if node_del.l is None:
+            # Случай 1: У удаляемого узла нет левого ребенка.
+            # print('Случай 1')
             if parent is None:
                 # удаление корня
                 self.root = node_del.r
@@ -166,7 +165,7 @@ class ClassicBinaryTree:
                     self.root.parent = None
             else:
 
-                if delta > 0:
+                if not delta :
                     parent.l = node_del.r
                     if parent.l is not None:
                         node_del.r.parent = parent
@@ -178,43 +177,71 @@ class ClassicBinaryTree:
             left_person = node_del.l
             if left_person.r is None:
                 # Случай 2: У удаляемого узла есть  левый ребенок, у которого, в свою очередь нет правого ребенка.
+                # print('Случай 2, delta=', delta)
                 parent_node_del = node_del.parent
                 if delta is None:
                     # удаление корня
-                    self.root = left_person
-                    self.root.parent = None
+
+                    self.root.val = left_person.val
                     r_child = node_del.r
                     self.root.r = r_child
                     if r_child is not None:
                         r_child.parent = self.root
-                    l_child = self.root.l
-                    if l_child is not None:
+                    l_child =left_person.l
+                    self.root.l = l_child
+                    if l_child:
                         l_child.parent = self.root
 
+                    self.upgrate_h(self.root)
+                    self.del_node(left_person)
                 else:
-                    if delta > 0:
+                    if not delta:
                         # Левый сын
                         parent_node_del.l = left_person
-                    elif delta < 0:
+                    else:
                         parent_node_del.r = left_person
                     left_person.parent = parent_node_del
-                self.del_node(node_del)
+                    left_person.r = node_del.r
+                    child_r = left_person.r
+                    if child_r:
+                        child_r.parent = left_person
+                    self.del_node(node_del)
             else:
                 # Случай 3: У удаляемого узла есть левый ребенок, у которого есть правый ребенок.
+                # print('Случай 3')
                 right_person = left_person
                 while right_person.r != None:
                     right_person = left_person.r
                 node_del.val = right_person.val  # копируем значение у самого правого ребенка (большое) в левом дереве
                 parent_right_person = right_person.parent
-                parent_right_person.r = right_person.l
                 right_person.l = None
                 parent_right_person.r = None
 
-    def extract(self, val):
+    def extract(self, val:int, node:Node=None) -> None:
         '''
         Удаление узла по значению val
         '''
-        self.find_place(val, flag_del=True)
+        now_node = node or self.root
+        print('extract node', now_node)
+        print('selfn', self.n)
+        print(self)
+        val_node = now_node.val
+        if val == val_node:
+            # усли есть такое значение, то вернет его
+            self.go_extract(now_node)
+
+
+        elif val < val_node:
+            if now_node.l is None:
+                return
+            self.extract(val, now_node.l)
+        else:
+            if now_node.r is None:
+                # если нет , то вернет его
+                return
+            self.extract(val, now_node.r)
+        self.balance(now_node)
+
 
     def __str__(self):
         now_time = datetime.datetime.now()
