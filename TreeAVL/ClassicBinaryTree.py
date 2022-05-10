@@ -1,6 +1,3 @@
-import datetime
-
-
 class Node:
     def __init__(self, val, parent=None, l=None, r=None, h=0, diff=0):
         '''Узел дерева
@@ -32,7 +29,6 @@ class ClassicBinaryTree:
         if self.n == 0:
             self.root = Node(val=val)
             self.n += 1
-
 
     def find_place(self, find_val: int, node: Node = None):
         '''
@@ -123,9 +119,7 @@ class ClassicBinaryTree:
                 self.insert(new_val, now_node.r)
         self.balance(now_node)
 
-
     def balance(self, now_node):
-        # print('balance now_node', now_node)
         self.upgrate_h(now_node)
         pass
 
@@ -134,7 +128,6 @@ class ClassicBinaryTree:
         parent = node.parent
         if parent is None:
             return None
-        # print(parent.val , node.val)
         return bool(parent.val < node.val)
 
     def del_node(self, node):
@@ -142,7 +135,7 @@ class ClassicBinaryTree:
         node.parent = None
         node.l = None
         node.r = None
-        node.val =None
+        node.val = None
 
     def go_extract(self, node_del: Node) -> None:
         '''
@@ -150,14 +143,13 @@ class ClassicBinaryTree:
         :param val: значение, которое хотим удалить
         :return: None
         '''
+
         self.n -= 1
-        # print('node_del', node_del)
         parent = node_del.parent
         delta = self.compare_to_parent(node_del)
 
         if node_del.l is None:
             # Случай 1: У удаляемого узла нет левого ребенка.
-            # print('Случай 1')
             if parent is None:
                 # удаление корня
                 self.root = node_del.r
@@ -165,19 +157,23 @@ class ClassicBinaryTree:
                     self.root.parent = None
             else:
 
-                if not delta :
+                if not delta:
+                    # левый сын
                     parent.l = node_del.r
-                    if parent.l is not None:
-                        node_del.r.parent = parent
+                    l_child = parent.l
+                    if l_child:
+                        l_child.parent = parent
                 else:
+                    # правый сын
                     parent.r = node_del.r
-                    if parent.r is not None:
-                        node_del.r.parent = parent
+                    r_child = parent.r
+                    if r_child:
+                        r_child.parent = parent
+                self.del_node(node_del)
         else:
             left_person = node_del.l
             if left_person.r is None:
                 # Случай 2: У удаляемого узла есть  левый ребенок, у которого, в свою очередь нет правого ребенка.
-                # print('Случай 2, delta=', delta)
                 parent_node_del = node_del.parent
                 if delta is None:
                     # удаление корня
@@ -187,7 +183,7 @@ class ClassicBinaryTree:
                     self.root.r = r_child
                     if r_child is not None:
                         r_child.parent = self.root
-                    l_child =left_person.l
+                    l_child = left_person.l
                     self.root.l = l_child
                     if l_child:
                         l_child.parent = self.root
@@ -208,23 +204,24 @@ class ClassicBinaryTree:
                     self.del_node(node_del)
             else:
                 # Случай 3: У удаляемого узла есть левый ребенок, у которого есть правый ребенок.
-                # print('Случай 3')
                 right_person = left_person
                 while right_person.r != None:
-                    right_person = left_person.r
+                    # print(right_person)
+                    right_person = right_person.r
                 node_del.val = right_person.val  # копируем значение у самого правого ребенка (большое) в левом дереве
                 parent_right_person = right_person.parent
-                right_person.l = None
-                parent_right_person.r = None
+                l_child_right_person = right_person.l
+                parent_right_person.r = l_child_right_person
+                if l_child_right_person:
+                    l_child_right_person.parent = parent_right_person
 
-    def extract(self, val:int, node:Node=None) -> None:
+    def extract(self, val: int, node: Node = None) -> None:
         '''
         Удаление узла по значению val
         '''
         now_node = node or self.root
-        print('extract node', now_node)
-        print('selfn', self.n)
-        print(self)
+        if now_node is None:
+            print(self)
         val_node = now_node.val
         if val == val_node:
             # усли есть такое значение, то вернет его
@@ -237,16 +234,11 @@ class ClassicBinaryTree:
             self.extract(val, now_node.l)
         else:
             if now_node.r is None:
-                # если нет , то вернет его
                 return
             self.extract(val, now_node.r)
         self.balance(now_node)
 
-
     def __str__(self):
-        now_time = datetime.datetime.now()
-        end_time = now_time + datetime.timedelta(seconds=5)
-
         if self.n == 0:
             return str(None)
         parent = [self.root]
@@ -261,8 +253,6 @@ class ClassicBinaryTree:
             for c in childs:
                 if c is not None and c not in parent:
                     parent += [c]
-            # print([f'x={x} p={p} l={x.l} r={x.r}' for x in parent])
-
 
         for line in ans:
             for i, x in enumerate(line):
@@ -284,4 +274,5 @@ if __name__ == '__main__':
         tree.insert(x)
     tree.extract(0)
     print(tree)
-
+    print(tree.find(0))
+    print(tree.find(-3))
