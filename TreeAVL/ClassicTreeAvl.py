@@ -233,6 +233,8 @@ def check2():
             # print()
 
 
+
+
     h_del = [h_i/m for h_i in h]
     n = range(1, n_max+1)
 
