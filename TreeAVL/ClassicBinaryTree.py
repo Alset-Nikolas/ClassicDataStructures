@@ -120,11 +120,12 @@ class ClassicBinaryTree:
         self.balance(now_node)
 
     def balance(self, now_node):
+
         self.upgrate_h(now_node)
         pass
 
     def compare_to_parent(self, node):
-        '''Сравнение клбчей родителя и узла'''
+        '''Сравнение ключей родителя и узла'''
         parent = node.parent
         if parent is None:
             return None
@@ -276,3 +277,4 @@ if __name__ == '__main__':
     print(tree)
     print(tree.find(0))
     print(tree.find(-3))
+
